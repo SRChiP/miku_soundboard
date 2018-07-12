@@ -67,8 +67,7 @@ void updateLevelGroup(int number, CRGB colour) {
 int getAudioLevel() {
     // Use analog pin to read audio input
     input = analogRead(MIC_PIN);
-    Serial.print("A0 = ");
-    Serial.print(input);
+    Serial.print(MIC_PIN);Serial.print(" = ");Serial.print(input);
 
     return int(float(input) / 512 * NUM_LEDS);
 }
@@ -79,19 +78,19 @@ void setup () {
     Serial.println(F("\n\nMiku Soundboard\nSerial Started"));
 
     Serial.println(F("Configuring..."));
-    Serial.print("LEDs: DATA_PIN = "); Serial.print(DATA_PIN); Serial.print("; NUM_LEDS = "); Serial.println(NUM_LEDS);
+    Serial.print(F("LEDs: DATA_PIN = ")); Serial.print(DATA_PIN); Serial.print(F("; NUM_LEDS = ")); Serial.println(NUM_LEDS);
     FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
 
-    Serial.print("MIC : MIC_PIN = "); Serial.println(MIC_PIN);
+    Serial.print(F("MIC : MIC_PIN = ")); Serial.println(MIC_PIN);
     pinMode(MIC_PIN, INPUT);
     Serial.print("\n"); 
     
     
     Serial.println(F("Setting static colours"));
     const int staticCount = sizeof(STATIC_LEDS)/sizeof(int);
-    Serial.print("Static count :");
+    Serial.print(F("Static count :"));
     Serial.print(staticCount);
-    Serial.print(".\nLEDs: ");
+    Serial.print(F("\nLEDs: "));
     for (i = 0; i < staticCount; i++) {
         Serial.print(STATIC_LEDS[i]);Serial.print(" ");
         leds[STATIC_LEDS[i]] = STATIC_COLOUR;
@@ -99,30 +98,30 @@ void setup () {
     Serial.println();
 
     if (DEBUG) {
-        Serial.println("TEST MODE -----");
+        Serial.println(F("TEST MODE -----"));
         FastLED.delay(2000);
         FastLED.show();
-        Serial.println("Level 0");
+        Serial.println(F("Level 0"));
         updateLevelGroup(0, CRGB::Pink);
         FastLED.show();
         FastLED.delay(1000);
-        Serial.println("Level 1");
+        Serial.println(F("Level 1"));
         updateLevelGroup(1, CRGB::Red);
         FastLED.show();
         FastLED.delay(1000);
-        Serial.println("Level 2");
+        Serial.println(F("Level 2"));
         updateLevelGroup(2, CRGB::Blue);
         FastLED.show();
         FastLED.delay(1000);
-        Serial.println("Level 3");
+        Serial.println(F("Level 3"));
         updateLevelGroup(3, CRGB::White);
         FastLED.show();
         FastLED.delay(1000);
-        Serial.println("Level 4");
+        Serial.println(F("Level 4"));
         updateLevelGroup(4, CRGB::Green);
         FastLED.show();
         FastLED.delay(1000);
-        Serial.println("TEST MODE END----");
+        Serial.println(F("TEST MODE END----"));
     }
 }
 
