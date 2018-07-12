@@ -1,0 +1,13 @@
+image: python:2.7
+
+stages:
+ - test
+
+before_script:
+  - "pip install -U platformio"
+  - "pio lib install"
+
+job:
+  stage: test
+  script: "platformio ci --board=uno"
+  variables: {PLATFORMIO_CI_SRC: "src/main.cpp"}
