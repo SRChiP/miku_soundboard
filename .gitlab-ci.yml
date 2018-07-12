@@ -5,7 +5,7 @@ stages:
 
 before_script:
   - "pip install -U platformio"
-  - "pio lib install"
+  -  platformio lib -g install "FastLED"
 
 job:
   stage: test
