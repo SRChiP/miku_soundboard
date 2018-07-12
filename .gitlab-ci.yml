@@ -13,4 +13,4 @@ job:
   variables: {PLATFORMIO_CI_SRC: "src/main.cpp"}
   artifacts:
     paths:
-      - ~/.pioenvs/uno/firmware.elf
+      - /builds/srchip/miku_soundboard/.pioenvs/uno/firmware.elf
