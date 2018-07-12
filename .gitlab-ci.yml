@@ -11,6 +11,3 @@ job:
   stage: test
   script: "platformio ci --board=uno"
   variables: {PLATFORMIO_CI_SRC: "src/main.cpp"}
-  artifacts:
-    paths:
-      - /builds/srchip/miku_soundboard/.pioenvs/uno/firmware.elf
