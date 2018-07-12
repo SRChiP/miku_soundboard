@@ -11,3 +11,6 @@ job:
   stage: test
   script: "platformio ci --board=uno"
   variables: {PLATFORMIO_CI_SRC: "src/main.cpp"}
+  artifacts:
+    paths:
+      - .pioenvs/uno/firmware.elf
