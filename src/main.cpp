@@ -12,13 +12,13 @@ The Miku soundboard is a sketch that visualizes analog audio in a VU Meter
 #define NUM_LEDS 31
 
 // Since this a neopixel, we only need the data pin.
-#define DATA_PIN 8
+#define DATA_PIN 7
 
 // Analog pin to read the mic's output
 #define MIC_PIN A0
 
 //Enable or disable DEBUG
-const bool DEBUG = true;
+const bool DEBUG = false;
 
 // Array of LEDs
 CRGB leds[NUM_LEDS];
@@ -35,6 +35,11 @@ const CRGB LEVEL_LED_COLOUR = CRGB::Violet;
 const int NUMBER_OF_LEVELS = sizeof(LEVEL_LED_GROUPS)/sizeof(LEVEL_LED_GROUPS[0]);
 
 int input, i, j, level;
+
+// Audio related variables
+const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
+unsigned int sample;
+
 
 int randomNumber() {
     // Return a random LED
@@ -67,7 +72,7 @@ void updateLevelGroup(int number, CRGB colour) {
 int getAudioLevel() {
     // Use analog pin to read audio input
     input = analogRead(MIC_PIN);
-    Serial.print(MIC_PIN);Serial.print(" = ");Serial.print(input);
+    Serial.print("A0");Serial.print(" = ");Serial.print(input);
 
     return int(float(input) / 512 * NUM_LEDS);
 }
@@ -126,26 +131,53 @@ void setup () {
 }
 
 void loop () {
+
+    unsigned long startMillis= millis();  // Start of sample window
+    unsigned int peakToPeak = 0;   // peak-to-peak level
+ 
+    unsigned int signalMax = 0;
+    unsigned int signalMin = 1024;
+ 
+    // collect data for 50 mS
+    while (millis() - startMillis < sampleWindow)
+    {
+        sample = analogRead(MIC_PIN);
+        if (sample < 1024)  // toss out spurious readings
+        {
+            if (sample > signalMax)
+            {
+                signalMax = sample;  // save just the max levels
+            }
+            else if (sample < signalMin)
+            {
+                signalMin = sample;  // save just the min levels
+            }
+        }
+    }
+    peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
+    double volts = (peakToPeak * 5.0) / 1024;  // convert to volts
+ 
+    Serial.println(volts);
     
    
-    if (DEBUG) {
-        level = randomNumber();
-    }
-    else {
-        level = getAudioLevel();
-    }
+    // if (DEBUG) {
+    //     level = randomNumber();
+    // }
+    // else {
+    //     level = getAudioLevel();
+    // }
 
  
-    // Make sure the level is limited by the number of leds
-    level = min(NUM_LEDS, level);
-    Serial.print("  level = ");
-    Serial.print(level);
+    // // Make sure the level is limited by the number of leds
+    // level = min(NUM_LEDS, level);
+    // Serial.print(F("  level = "));
+    // Serial.print(level);
 
-    updateLevelGroup(level, LEVEL_LED_COLOUR);
+    //updateLevelGroup(level, LEVEL_LED_COLOUR);
 
-    FastLED.show();
+    // FastLED.show();
 
-    Serial.print("\n");
-    delay(200);
+    // Serial.print(F("\n"));
+    // delay(200);
 
 }
