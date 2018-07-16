@@ -37,17 +37,9 @@ const int NUMBER_OF_LEVELS = sizeof(LEVEL_LED_GROUPS)/sizeof(LEVEL_LED_GROUPS[0]
 int input, i, j, level;
 
 // Audio related variables
-const int sampleWindow = 100; // Sample window width in mS (50 mS = 20Hz)
+const int sampleWindow = 100; // Sample window width in mS (100 mS = 40Hz)
 unsigned int sample;
 
-
-// int randomNumber() {
-//     // Return a random LED
-//     int rnd = random(NUMBER_OF_LEVELS);
-//     Serial.print("RND = ");
-//     Serial.print(rnd);
-//     return rnd;
-// }
 
 void updateLevelGroup(int number, CRGB colour) {
     number = min(NUMBER_OF_LEVELS, number);
@@ -69,13 +61,6 @@ void updateLevelGroup(int number, CRGB colour) {
     }
 }
 
-// int getAudioLevel() {
-//     // Use analog pin to read audio input
-//     input = analogRead(MIC_PIN);
-//     Serial.print("A0");Serial.print(" = ");Serial.print(input);
-
-//     return int(float(input) / 512 * NUM_LEDS);
-// }
 
 void setup () {
     // Enable serial for debugging purposes
@@ -159,23 +144,15 @@ void loop () {
     peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
     double volts = (peakToPeak * 5.0) / 1024;  // convert to volts
  
-    
-    // pp
-    // 0.18 idle min (0.04 sometimes)
-    // 1.4 normal sound we need
-    // 2.47 max
+    /* 
+    peak-to-peak data
+    0.18 idle min (0.04 sometimes)
+    1.4 normal sound we need
+    2.47 max 
+    */
     Serial.print(" volts=");Serial.print(volts); // Peak-to-Peak volts
    
     level = (max(0.0, volts - 0.18) / (2.47 - 0.18)) * NUMBER_OF_LEVELS;
-
-   // Display audio Level
-    // if (DEBUG) {
-    //     level = randomNumber();
-    // }
-    // else {
-    //     level = getAudioLevel();
-    // }
-
  
     // Make sure the level is limited by the number of leds
     level = min(NUM_LEDS, level);
