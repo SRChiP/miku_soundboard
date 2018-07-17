@@ -23,27 +23,33 @@ const bool DEBUG = false;
 // Array of LEDs
 CRGB leds[NUM_LEDS];
 
-const int STATIC_LEDS[] = {4, 6, 8, 9, 12, 13, 16, 18, 19, 22, 23, 25, 26, 28, 29};
-const CRGB STATIC_COLOUR = CRGB::Yellow;
+const int STATIC_LEDS[] = {0, 1, 2, 27, 28, 29, 30};
+const CRGB STATIC_COLOUR = CRGB::Red;
 
-const int LEVEL_LED_GROUPS[4][4] = {
-                               {1, 5, 11, 15},  //0
-                               {3, 7, 14, 20},  //1
-                               {2, 10, 17, 16},  //2
-                               {21, 24, 27, 30} }; //3
-const CRGB LEVEL_LED_COLOUR = CRGB::Violet;
+const int LEVEL_LED_GROUPS[8][3] = {
+                               { 3,  4,  5},  //0
+                               { 6,  7,  8},  //1
+                               { 9, 10, 11},  //2
+                               {12, 13, 14},  //3
+                               {15, 16, 17},  //4
+                               {18, 19, 20},  //5
+                               {21, 22, 23},  //6
+                               {24, 25, 26} };//7 
+const CRGB LEVEL_LED_COLOUR = CRGB::LightCyan;
 const int NUMBER_OF_LEVELS = sizeof(LEVEL_LED_GROUPS)/sizeof(LEVEL_LED_GROUPS[0]);
 
-int input, i, j, level;
+// Variables for LED display
+int i, j;
 
 // Audio related variables
 const int sampleWindow = 100; // Sample window width in mS (100 mS = 40Hz)
-unsigned int sample;
+int corrected_level;
+unsigned int sample, peakToPeak, signalMax, signalMin;
+unsigned long startMillis;  // Start of sample window
+double volts, level;
 
 
 void updateLevelGroup(int number, CRGB colour) {
-    number = min(NUMBER_OF_LEVELS, number);
-    if (DEBUG) {Serial.print("Number of Levels: ");Serial.print(NUMBER_OF_LEVELS);Serial.print(", current Level: ");Serial.println(number);}
     int numberOfElements;
 
     for (i = 0; i < NUMBER_OF_LEVELS; i ++) {
@@ -85,32 +91,19 @@ void setup () {
         Serial.print(STATIC_LEDS[i]);Serial.print(" ");
         leds[STATIC_LEDS[i]] = STATIC_COLOUR;
     };
-    Serial.println();
+    Serial.print(F("\nNumber of Steps for Visualizer :"));
+    Serial.println(NUMBER_OF_LEVELS);
 
     if (DEBUG) {
         Serial.println(F("TEST MODE -----"));
         FastLED.delay(2000);
         FastLED.show();
-        Serial.println(F("Level 0"));
-        updateLevelGroup(0, CRGB::Pink);
-        FastLED.show();
-        FastLED.delay(1000);
-        Serial.println(F("Level 1"));
-        updateLevelGroup(1, CRGB::Red);
-        FastLED.show();
-        FastLED.delay(1000);
-        Serial.println(F("Level 2"));
-        updateLevelGroup(2, CRGB::Blue);
-        FastLED.show();
-        FastLED.delay(1000);
-        Serial.println(F("Level 3"));
-        updateLevelGroup(3, CRGB::White);
-        FastLED.show();
-        FastLED.delay(1000);
-        Serial.println(F("Level 4"));
-        updateLevelGroup(4, CRGB::Green);
-        FastLED.show();
-        FastLED.delay(1000);
+        for (i = 0; i < NUMBER_OF_LEVELS; i ++) {
+            Serial.print("Level ");Serial.println(i);
+            updateLevelGroup(i, CRGB::WhiteSmoke);
+            FastLED.show();
+            FastLED.delay(1000);
+        }
         Serial.println(F("TEST MODE END----"));
     }
 }
@@ -118,11 +111,11 @@ void setup () {
 void loop () {
 
     // Calculate audio level
-    unsigned long startMillis= millis();  // Start of sample window
-    unsigned int peakToPeak = 0;   // peak-to-peak level
+    startMillis = millis();  // Start of sample window
+    peakToPeak = 0;   // peak-to-peak level
  
-    unsigned int signalMax = 0;
-    unsigned int signalMin = 1024;
+    signalMax = 0;
+    signalMin = 1024;
  
     // collect data for 50 mS
     while (millis() - startMillis < sampleWindow)
@@ -142,7 +135,7 @@ void loop () {
     }
     Serial.print("max=");Serial.print((signalMax * 5.0) / 1024);Serial.print(" min=");Serial.print((signalMin * 5.0) / 1024);
     peakToPeak = signalMax - signalMin;  // max - min = peak-peak amplitude
-    double volts = (peakToPeak * 5.0) / 1024;  // convert to volts
+    volts = (peakToPeak * 5.0) / 1024;  // convert to volts
  
     /* 
     peak-to-peak data
@@ -154,12 +147,18 @@ void loop () {
    
     level = (max(0.0, volts - 0.18) / (2.47 - 0.18)) * NUMBER_OF_LEVELS;
  
-    // Make sure the level is limited by the number of leds
-    level = min(NUM_LEDS, level);
+    // Round up rather than truncate to show more lights
+    corrected_level = (int) round(level) ;
+    // Make sure the level is limited by the number of levels that can be displayed
+    corrected_level = min(NUMBER_OF_LEVELS, corrected_level);
     Serial.print(F("  level = "));
+    Serial.print(corrected_level);
+    Serial.print(F(" ("));
     Serial.print(level);
+    Serial.print(F(" actual)"));
+    
 
-    updateLevelGroup(level, LEVEL_LED_COLOUR);
+    updateLevelGroup(corrected_level, LEVEL_LED_COLOUR);
 
     FastLED.show();
 
