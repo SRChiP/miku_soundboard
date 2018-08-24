@@ -14,14 +14,18 @@ The Miku soundboard is a sketch that visualizes analog audio in a VU Meter
 // Since this a neopixel, we only need the data pin.
 #define DATA_PIN 7
 
+#define TEST_PIN 4
+#define TEST_NUM 34
+
 // Analog pin to read the mic's output
 #define MIC_PIN A0
 
 //Enable or disable DEBUG
-const bool DEBUG = false;
+const bool DEBUG = true;
 
 // Array of LEDs
 CRGB leds[NUM_LEDS];
+CRGB test_leds[TEST_NUM];
 
 const int STATIC_LEDS[] = {0, 1, 2, 27, 28, 29, 30};
 const CRGB STATIC_COLOUR = CRGB::Red;
@@ -40,6 +44,7 @@ const int NUMBER_OF_LEVELS = sizeof(LEVEL_LED_GROUPS)/sizeof(LEVEL_LED_GROUPS[0]
 
 // Variables for LED display
 int i, j;
+int test_count = 0;
 
 // Audio related variables
 const int sampleWindow = 100; // Sample window width in mS (100 mS = 40Hz)
@@ -76,6 +81,10 @@ void setup () {
     Serial.println(F("Configuring..."));
     Serial.print(F("LEDs: DATA_PIN = ")); Serial.print(DATA_PIN); Serial.print(F("; NUM_LEDS = ")); Serial.println(NUM_LEDS);
     FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+    if (DEBUG) {
+        Serial.print(F("LEDs2: DATA_PIN = "));
+        FastLED.addLeds<WS2812B, TEST_PIN, GRB>(test_leds, TEST_NUM);
+    }
 
     Serial.print(F("MIC : MIC_PIN = ")); Serial.println(MIC_PIN);
     pinMode(MIC_PIN, INPUT);
@@ -155,10 +164,27 @@ void loop () {
     Serial.print(corrected_level);
     Serial.print(F(" ("));
     Serial.print(level);
-    Serial.print(F(" actual)"));
+    Serial.print(F(" actual)\n"));
     
 
     updateLevelGroup(corrected_level, LEVEL_LED_COLOUR);
+
+    if (DEBUG) {
+        Serial.print(F("update test"));Serial.print(test_count);
+
+        for (i = 0; i < TEST_NUM; i++) {
+            if (test_count == 0) {
+                test_leds[i] = CRGB::Red;
+            } else if (test_count == 1) {
+                test_leds[i] = CRGB::Blue;
+            } else {
+                test_leds[i] = CRGB::Green;
+                test_count = -1;
+            }        
+        }
+        test_count++;
+        if (test_count > 2) {test_count = 0;}
+    }
 
     FastLED.show();
 
