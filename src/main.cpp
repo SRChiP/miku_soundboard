@@ -14,17 +14,18 @@ The Miku soundboard is a sketch that visualizes analog audio in a VU Meter
 // Since this a neopixel, we only need the data pin.
 #define DATA_PIN 3
 
-#define TEST_PIN 4
-#define TEST_NUM 34
-
 // Analog pin to read the mic's output
 #define MIC_PIN A0
 
 //Enable or disable DEBUG
-const bool DEBUG = true;
+const bool DEBUG = false;
 
 // Array of LEDs
 CRGB leds[NUM_LEDS];
+
+// TESTING CODE
+#define TEST_PIN 7
+#define TEST_NUM 10
 CRGB test_leds[TEST_NUM];
 
 const int STATIC_LEDS[] = {4, 6, 10, 12, 20, 25, 17, 33};
