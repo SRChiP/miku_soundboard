@@ -9,10 +9,10 @@ The Miku soundboard is a sketch that visualizes analog audio in a VU Meter
 #include "FastLED.h"
 
 // How many leds in your strip?
-#define NUM_LEDS 31
+#define NUM_LEDS 50
 
 // Since this a neopixel, we only need the data pin.
-#define DATA_PIN 7
+#define DATA_PIN 3
 
 #define TEST_PIN 4
 #define TEST_NUM 34
@@ -27,18 +27,17 @@ const bool DEBUG = true;
 CRGB leds[NUM_LEDS];
 CRGB test_leds[TEST_NUM];
 
-const int STATIC_LEDS[] = {0, 1, 2, 27, 28, 29, 30};
+const int STATIC_LEDS[] = {4, 6, 10, 12, 20, 25, 17, 33};
 const CRGB STATIC_COLOUR = CRGB::Red;
 
-const int LEVEL_LED_GROUPS[8][3] = {
-                               { 3,  4,  5},  //0
-                               { 6,  7,  8},  //1
-                               { 9, 10, 11},  //2
-                               {12, 13, 14},  //3
-                               {15, 16, 17},  //4
-                               {18, 19, 20},  //5
-                               {21, 22, 23},  //6
-                               {24, 25, 26} };//7 
+const int LEVEL_LED_GROUPS[6][7] = {
+                               { 0,  0,  0,  0,  0,  0,  0},  //0
+                               { 0,  0,  0,  0,  0,  0,  0},  //1
+                               { 0,  0,  0,  0,  0,  0,  0},  //2
+                               { 0,  0,  0,  0,  0,  0,  0},  //3
+                               { 0,  0,  0,  0,  0,  0,  0},  //4
+                               { 0,  0,  0,  0,  0,  0,  0},  //5
+                            };
 const CRGB LEVEL_LED_COLOUR = CRGB::LightCyan;
 const int NUMBER_OF_LEVELS = sizeof(LEVEL_LED_GROUPS)/sizeof(LEVEL_LED_GROUPS[0]);
 
@@ -56,7 +55,6 @@ double volts, level;
 
 void updateLevelGroup(int number, CRGB colour) {
     int numberOfElements;
-
     for (i = 0; i < NUMBER_OF_LEVELS; i ++) {
         numberOfElements = sizeof(LEVEL_LED_GROUPS[i])/sizeof(int);
         for (j = 0; j < numberOfElements; j++) {
@@ -166,7 +164,6 @@ void loop () {
     Serial.print(level);
     Serial.print(F(" actual)\n"));
     
-
     updateLevelGroup(corrected_level, LEVEL_LED_COLOUR);
 
     if (DEBUG) {
@@ -189,6 +186,5 @@ void loop () {
     FastLED.show();
 
     Serial.print(F("\n"));
-    // delay(200);
 
 }
